@@ -3,6 +3,7 @@ package awx
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"net/http"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -34,6 +35,21 @@ func Provider() *schema.Provider {
 				Optional:    true,
 				Sensitive:   true,
 				DefaultFunc: schema.EnvDefaultFunc("AWX_PASSWORD", "password"),
+			},
+			"client-cert": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Client certificate to use for mTLS validation. Must be provided along with client-key and ca-cert for mTLS to be used.",
+			},
+			"client-key": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Client key to use for mTLS validation. Must be provided along with client-cert and ca-cert for mTLS to be used",
+			},
+			"ca-cert": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "CA certificate to use for mTLS validation. Must be provided along with client-cert and client-key for mTLS to be used",
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
@@ -76,10 +92,25 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	username := d.Get("username").(string)
 	password := d.Get("password").(string)
 
+	clientCertPEM, clientCertPEMExists := d.GetOk("client-cert")
+	clientKeyPEM, clientKeyPEMExists := d.GetOk("client-key")
+	caCertPEM, caCertPEMExists := d.GetOk("ca-cert")
+
 	client := http.DefaultClient
 	if d.Get("insecure").(bool) {
 		client.Transport = &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+	} else if clientCertPEMExists && clientKeyPEMExists && caCertPEMExists {
+		transportTlsConfig, err := generateMtlsConfig(
+			clientCertPEM.(string),
+			clientKeyPEM.(string),
+			caCertPEM.(string))
+
+		if err == nil {
+			client.Transport = &http.Transport{
+				TLSClientConfig: transportTlsConfig,
+			}
 		}
 	}
 
@@ -96,4 +127,26 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	}
 
 	return c, diags
+}
+
+func generateMtlsConfig(clientCertPEM string, clientKeyPEM string, caCertPEM string) (*tls.Config, error) {
+	clientCertPEMBlock := []byte(clientCertPEM)
+	clientKeyPEMBlock := []byte(clientKeyPEM)
+	caCertPEMBlock := []byte(caCertPEM)
+
+	cert, err := tls.X509KeyPair(clientCertPEMBlock, clientKeyPEMBlock)
+	if err != nil {
+		return nil, err
+	}
+
+	caCertPool, _ := x509.SystemCertPool()
+	if caCertPool == nil {
+		caCertPool = x509.NewCertPool()
+	}
+	caCertPool.AppendCertsFromPEM(caCertPEMBlock)
+
+	return &tls.Config{
+		Certificates: []tls.Certificate{cert},
+		RootCAs:      caCertPool,
+	}, nil
 }
