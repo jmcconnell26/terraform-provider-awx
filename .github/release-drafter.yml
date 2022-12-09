@@ -1,1 +1,4 @@
-_extends: plumbing
+template: |
+  ## What's Changed
+
+  $CHANGES
