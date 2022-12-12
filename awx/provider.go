@@ -36,17 +36,17 @@ func Provider() *schema.Provider {
 				Sensitive:   true,
 				DefaultFunc: schema.EnvDefaultFunc("AWX_PASSWORD", "password"),
 			},
-			"client-cert": &schema.Schema{
+			"client_cert": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Client certificate to use for mTLS validation. Must be provided along with client-key and ca-cert for mTLS to be used.",
 			},
-			"client-key": &schema.Schema{
+			"client_key": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Client key to use for mTLS validation. Must be provided along with client-cert and ca-cert for mTLS to be used",
 			},
-			"ca-cert": &schema.Schema{
+			"ca_cert": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "CA certificate to use for mTLS validation. Must be provided along with client-cert and client-key for mTLS to be used",
@@ -92,9 +92,9 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	username := d.Get("username").(string)
 	password := d.Get("password").(string)
 
-	clientCertPEM, clientCertPEMExists := d.GetOk("client-cert")
-	clientKeyPEM, clientKeyPEMExists := d.GetOk("client-key")
-	caCertPEM, caCertPEMExists := d.GetOk("ca-cert")
+	clientCertPEM, clientCertPEMExists := d.GetOk("client_cert")
+	clientKeyPEM, clientKeyPEMExists := d.GetOk("client_key")
+	caCertPEM, caCertPEMExists := d.GetOk("ca_cert")
 
 	client := http.DefaultClient
 	if d.Get("insecure").(bool) {
