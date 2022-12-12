@@ -4,8 +4,6 @@ import (
     "context"
     "crypto/tls"
     "crypto/x509"
-    "fmt"
-    "log"
     "net/http"
 
     "github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -104,7 +102,6 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
             TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
         }
     } else if clientCertPEMExists && clientKeyPEMExists && caCertPEMExists {
-        log.Printf("Attempting to use mTLS")
         transportTlsConfig, err := generateMtlsConfig(
             clientCertPEM.(string),
             clientKeyPEM.(string),
@@ -124,7 +121,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
         diags = append(diags, diag.Diagnostic{
             Severity: diag.Error,
             Summary:  "Unable to create AWX client",
-            Detail:   fmt.Sprintf("Unable to auth user against AWX API: check the hostname, username and password - %s", err),
+            Detail:   "Unable to auth user against AWX API: check the hostname, username and password",
         })
         return nil, diags
     }
@@ -147,8 +144,6 @@ func generateMtlsConfig(clientCertPEM string, clientKeyPEM string, caCertPEM str
         caCertPool = x509.NewCertPool()
     }
     caCertPool.AppendCertsFromPEM(caCertPEMBlock)
-
-    log.Printf("mTLS config generated")
 
     return &tls.Config{
         Certificates: []tls.Certificate{cert},
