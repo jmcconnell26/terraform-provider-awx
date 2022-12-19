@@ -5,8 +5,10 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"net/http"
+    "os"
+    "path/filepath"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+    "github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	awx "github.com/mrcrilly/goawx/client"
 )
@@ -129,10 +131,19 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	return c, diags
 }
 
+// This method also writes the mTLS certificates to disk - to allow them to be used for other calls to
+// AWX
 func generateMtlsConfig(clientCertPEM string, clientKeyPEM string, caCertPEM string) (*tls.Config, error) {
 	clientCertPEMBlock := []byte(clientCertPEM)
 	clientKeyPEMBlock := []byte(clientKeyPEM)
 	caCertPEMBlock := []byte(caCertPEM)
+
+    tempCertificatePath := "/tmp/terraform-provider-awx"
+    os.MkdirAll(tempCertificatePath, 0700)
+
+    writeByteArrayToFile(clientCertPEMBlock, filepath.Join(tempCertificatePath, "tls.crt"))
+    writeByteArrayToFile(clientKeyPEMBlock, filepath.Join(tempCertificatePath, "tls.key"))
+    writeByteArrayToFile(caCertPEMBlock, filepath.Join(tempCertificatePath, "ca.crt"))
 
 	cert, err := tls.X509KeyPair(clientCertPEMBlock, clientKeyPEMBlock)
 	if err != nil {
@@ -149,4 +160,12 @@ func generateMtlsConfig(clientCertPEM string, clientKeyPEM string, caCertPEM str
 		Certificates: []tls.Certificate{cert},
 		RootCAs:      caCertPool,
 	}, nil
+}
+
+func writeByteArrayToFile(byteArray []byte, filePath string) {
+    t, err := os.Create(filePath)
+    if err == nil {
+        t.Write(byteArray)
+        t.Close()
+    }
 }
