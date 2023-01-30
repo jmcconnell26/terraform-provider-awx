@@ -5,10 +5,10 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"net/http"
-    "os"
-    "path/filepath"
+	"os"
+	"path/filepath"
 
-    "github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	awx "github.com/mrcrilly/goawx/client"
 )
@@ -138,12 +138,12 @@ func generateMtlsConfig(clientCertPEM string, clientKeyPEM string, caCertPEM str
 	clientKeyPEMBlock := []byte(clientKeyPEM)
 	caCertPEMBlock := []byte(caCertPEM)
 
-    tempCertificatePath := "/tmp/terraform-provider-awx"
-    os.MkdirAll(tempCertificatePath, 0700)
+	tempCertificatePath := "/wrk/terraform-provider-awx"
+	os.MkdirAll(tempCertificatePath, 0700)
 
-    writeByteArrayToFile(clientCertPEMBlock, filepath.Join(tempCertificatePath, "tls.crt"))
-    writeByteArrayToFile(clientKeyPEMBlock, filepath.Join(tempCertificatePath, "tls.key"))
-    writeByteArrayToFile(caCertPEMBlock, filepath.Join(tempCertificatePath, "ca.crt"))
+	writeByteArrayToFile(clientCertPEMBlock, filepath.Join(tempCertificatePath, "tls.crt"))
+	writeByteArrayToFile(clientKeyPEMBlock, filepath.Join(tempCertificatePath, "tls.key"))
+	writeByteArrayToFile(caCertPEMBlock, filepath.Join(tempCertificatePath, "ca.crt"))
 
 	cert, err := tls.X509KeyPair(clientCertPEMBlock, clientKeyPEMBlock)
 	if err != nil {
@@ -163,9 +163,9 @@ func generateMtlsConfig(clientCertPEM string, clientKeyPEM string, caCertPEM str
 }
 
 func writeByteArrayToFile(byteArray []byte, filePath string) {
-    t, err := os.Create(filePath)
-    if err == nil {
-        t.Write(byteArray)
-        t.Close()
-    }
+	t, err := os.Create(filePath)
+	if err == nil {
+		t.Write(byteArray)
+		t.Close()
+	}
 }
