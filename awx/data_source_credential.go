@@ -28,7 +28,6 @@ func dataSourceCredentialByID() *schema.Resource {
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
-				Computed: true,
 			},
 		},
 	}
