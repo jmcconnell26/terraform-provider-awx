@@ -1,20 +1,16 @@
 /*
 Use this data source to query Credential by ID.
 
-Example Usage
+# Example Usage
 
 ```hcl
 *TBD*
 ```
-
 */
 package awx
 
 import (
 	"context"
-	"strconv"
-	"time"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	awx "github.com/mrcrilly/goawx/client"
@@ -22,44 +18,57 @@ import (
 
 func dataSourceCredentialByID() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceCredentialByIDRead,
+		ReadContext: dataSourceCredentialsRead,
 		Schema: map[string]*schema.Schema{
 			"id": &schema.Schema{
-				Type:        schema.TypeInt,
-				Required:    true,
-				Description: "Credential id",
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
 			},
-			"username": &schema.Schema{
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "The Username from searched id",
-			},
-			"kind": &schema.Schema{
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "The Kind from searched id",
+			"name": &schema.Schema{
+				Type:     schema.TypeString,
+				Required: true,
+				Computed: true,
 			},
 		},
 	}
 }
 
-func dataSourceCredentialByIDRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func dataSourceCredentialsRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	client := m.(*awx.AWX)
-	id := d.Get("id").(int)
-	cred, err := client.CredentialsService.GetCredentialsByID(id, map[string]string{})
-	if err != nil {
-		diags = append(diags, diag.Diagnostic{
-			Severity: diag.Error,
-			Summary:  "Unable to fetch credential",
-			Detail:   "The given credential ID is invalid or malformed",
-		})
+	params := make(map[string]string)
+
+	if name, okName := d.GetOk("name"); okName {
+		params["name"] = name.(string)
 	}
 
-	d.Set("username", cred.Inputs["username"])
-	d.Set("kind", cred.Kind)
-	d.SetId(strconv.FormatInt(time.Now().Unix(), 10))
+	if len(params) == 0 {
+		return buildDiagnosticsMessage(
+			"Get: Missing Parameters",
+			"Please use one of the selectors (name or id)")
+	}
 
-	return diags
+	credentials, _, err := client.CredentialsService.ListCredentials(map[string]string{})
+
+	if err != nil {
+		return buildDiagnosticsMessage(
+			"Get: Fail to fetch Credential list",
+			"Fail to find the Credential List, got: %s",
+			err)
+	}
+
+	for _, credential := range credentials {
+		if credential.Name == params["name"] {
+			d.Set("id", credential.ID)
+
+			return diags
+		}
+	}
+
+	return buildDiagnosticsMessage(
+		"Credential not found",
+		"Could not find credential with name: %s",
+		params["name"])
 }
