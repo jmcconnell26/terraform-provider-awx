@@ -42,7 +42,7 @@ func dataSourceExecutionEnvironmentsRead(ctx context.Context, d *schema.Resource
 			"Please use the selector: (name)")
 	}
 
-	executionEnvironments, _, err := client.ExecutionEnvironmentService.ListExecutionEnvironments(map[string]string{})
+	executionEnvironments, _, err := client.ExecutionEnvironmentsService.ListExecutionEnvironments(map[string]string{})
 
 	if err != nil {
 		return buildDiagnosticsMessage(

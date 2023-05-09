@@ -1,24 +1,25 @@
 /*
 *TBD*
 
-Example Usage
+# Example Usage
 
 ```hcl
-data "awx_inventory" "default" {
-  name            = "private_services"
-  organisation_id = data.awx_organization.default.id
-}
 
-resource "awx_job_template" "baseconfig" {
-  name           = "baseconfig"
-  job_type       = "run"
-  inventory_id   = data.awx_inventory.default.id
-  project_id     = awx_project.base_service_config.id
-  playbook       = "master-configure-system.yml"
-  become_enabled = true
-}
+	data "awx_inventory" "default" {
+	  name            = "private_services"
+	  organisation_id = data.awx_organization.default.id
+	}
+
+	resource "awx_job_template" "baseconfig" {
+	  name           = "baseconfig"
+	  job_type       = "run"
+	  inventory_id   = data.awx_inventory.default.id
+	  project_id     = awx_project.base_service_config.id
+	  playbook       = "master-configure-system.yml"
+	  become_enabled = true
+	}
+
 ```
-
 */
 package awx
 
@@ -196,6 +197,10 @@ func resourceJobTemplate() *schema.Resource {
 				Optional: true,
 				Default:  false,
 			},
+			"execution_environment": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 		},
 		//Importer: &schema.ResourceImporter{
 		//	State: schema.ImportStatePassthrough,
@@ -245,6 +250,7 @@ func resourceJobTemplateCreate(ctx context.Context, d *schema.ResourceData, m in
 		"become_enabled":           d.Get("become_enabled").(bool),
 		"diff_mode":                d.Get("diff_mode").(bool),
 		"allow_simultaneous":       d.Get("allow_simultaneous").(bool),
+		"execution_environment":    d.Get("execution_environment").(string),
 		"custom_virtualenv":        AtoipOr(d.Get("custom_virtualenv").(string), nil),
 	}, map[string]string{})
 	if err != nil {
