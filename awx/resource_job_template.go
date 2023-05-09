@@ -313,6 +313,7 @@ func resourceJobTemplateUpdate(ctx context.Context, d *schema.ResourceData, m in
 		"become_enabled":           d.Get("become_enabled").(bool),
 		"diff_mode":                d.Get("diff_mode").(bool),
 		"allow_simultaneous":       d.Get("allow_simultaneous").(bool),
+		"execution_environment":    d.Get("execution_environment").(string),
 		"custom_virtualenv":        AtoipOr(d.Get("custom_virtualenv").(string), nil),
 	}, map[string]string{})
 	if err != nil {
@@ -354,6 +355,7 @@ func setJobTemplateResourceData(d *schema.ResourceData, r *awx.JobTemplate) *sch
 	d.Set("ask_tags_on_launch", r.AskTagsOnLaunch)
 	d.Set("ask_variables_on_launch", r.AskVariablesOnLaunch)
 	d.Set("description", r.Description)
+	d.Set("execution_environment", r.ExecutionEnvironment)
 	d.Set("extra_vars", r.ExtraVars)
 	d.Set("force_handlers", r.ForceHandlers)
 	d.Set("forks", r.Forks)
