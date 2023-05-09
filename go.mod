@@ -47,4 +47,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c // indirect
 )
 
-replace github.com/mrcrilly/goawx => github.com/jmcconnell26/goawx v0.0.5
+replace github.com/mrcrilly/goawx => github.com/jmcconnell26/goawx v0.0.6
