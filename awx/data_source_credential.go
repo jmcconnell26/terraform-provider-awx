@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	awx "github.com/mrcrilly/goawx/client"
+	"strconv"
 )
 
 func dataSourceCredentialByID() *schema.Resource {
@@ -29,6 +30,11 @@ func dataSourceCredentialByID() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				Computed: false,
+			},
+			"kind": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 		},
 	}
@@ -61,8 +67,9 @@ func dataSourceCredentialsRead(ctx context.Context, d *schema.ResourceData, m in
 
 	for _, credential := range credentials {
 		if credential.Name == params["name"] {
-			d.Set("id", credential.ID)
-
+			d.SetId(strconv.Itoa(credential.ID))
+			d.Set("name", credential.Name)
+			d.Set("kind", credential.Kind)
 			return diags
 		}
 	}
