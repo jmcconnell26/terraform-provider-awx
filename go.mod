@@ -10,6 +10,4 @@ require (
 	gopkg.in/yaml.v2 v2.3.0
 )
 
-replace github.com/mrcrilly/goawx => github.com/nolte/goawx v0.1.6
-
-// replace github.com/mrcrilly/goawx => /go/src/github.com/mrcrilly/goawx
+replace github.com/mrcrilly/goawx => github.com/jmcconnell26/goawx v0.0.2

@@ -1,12 +1,3 @@
-/*
-Use this data source to query Credential by ID.
-
-# Example Usage
-
-```hcl
-*TBD*
-```
-*/
 package awx
 
 import (
@@ -17,9 +8,9 @@ import (
 	"strconv"
 )
 
-func dataSourceCredentialByName() *schema.Resource {
+func dataSourceExecutionEnvironmentByName() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceCredentialsRead,
+		ReadContext: dataSourceExecutionEnvironmentsRead,
 		Schema: map[string]*schema.Schema{
 			"id": &schema.Schema{
 				Type:     schema.TypeInt,
@@ -31,16 +22,11 @@ func dataSourceCredentialByName() *schema.Resource {
 				Required: true,
 				Computed: false,
 			},
-			"kind": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
 		},
 	}
 }
 
-func dataSourceCredentialsRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func dataSourceExecutionEnvironmentsRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	client := m.(*awx.AWX)
@@ -56,26 +42,25 @@ func dataSourceCredentialsRead(ctx context.Context, d *schema.ResourceData, m in
 			"Please use the selector: (name)")
 	}
 
-	credentials, _, err := client.CredentialsService.ListCredentials(map[string]string{})
+	executionEnvironments, _, err := client.ExecutionEnvironmentService.ListExecutionEnvironments(map[string]string{})
 
 	if err != nil {
 		return buildDiagnosticsMessage(
-			"Get: Fail to fetch Credential list",
-			"Fail to find the Credential list, got: %s",
+			"Get: Fail to fetch Execution Environment list",
+			"Fail to find the Execution Environment list, got: %s",
 			err)
 	}
 
-	for _, credential := range credentials {
-		if credential.Name == params["name"] {
-			d.SetId(strconv.Itoa(credential.ID))
-			d.Set("name", credential.Name)
-			d.Set("kind", credential.Kind)
+	for _, executionEnvironment := range executionEnvironments {
+		if executionEnvironment.Name == params["name"] {
+			d.SetId(strconv.Itoa(executionEnvironment.ID))
+			d.Set("name", executionEnvironment.Name)
 			return diags
 		}
 	}
 
 	return buildDiagnosticsMessage(
-		"Credential not found",
-		"Could not find Credential with name: %s",
+		"Execution Environment not found",
+		"Could not find Execution Environment with name: %s",
 		params["name"])
 }

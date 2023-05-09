@@ -76,7 +76,8 @@ func Provider() *schema.Provider {
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"awx_credential_azure_key_vault": dataSourceCredentialAzure(),
-			"awx_credential":                 dataSourceCredentialByID(),
+			"awx_credential":                 dataSourceCredentialByName(),
+			"awx_execution_environment":      dataSourceExecutionEnvironmentByName(),
 			"awx_inventory_group":            dataSourceInventoryGroup(),
 			"awx_inventory":                  dataSourceInventory(),
 			"awx_job_template":               dataSourceJobTemplate(),
