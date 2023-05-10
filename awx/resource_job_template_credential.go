@@ -87,6 +87,7 @@ func resourceJobTemplateCredentialsRead(ctx context.Context, d *schema.ResourceD
 	}
 
 	d.SetId(strconv.Itoa(res.ID))
+	d.Set("job_template_id", res.ID)
 	d.Set("credential_id", res.Credential)
 	return diags
 }
