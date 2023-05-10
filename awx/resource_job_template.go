@@ -200,7 +200,11 @@ func resourceJobTemplate() *schema.Resource {
 			"execution_environment": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Default:  "",
 			},
+		},
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 		//Importer: &schema.ResourceImporter{
 		//	State: schema.ImportStatePassthrough,
