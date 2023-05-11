@@ -63,13 +63,14 @@ func resourceJobTemplateCredentials() *schema.Resource {
 				}
 
 				client := m.(*awx.AWX)
-				_, err = client.JobTemplateService.GetJobTemplateByID(jobTemplateId, make(map[string]string))
+				res, err := client.JobTemplateService.GetJobTemplateByID(jobTemplateId, make(map[string]string))
 
 				if err != nil {
 					return nil, fmt.Errorf("failed to load Job Template with ID: %d", jobTemplateId)
 				}
 
 				d.SetId(fmt.Sprintf("%d/%d", jobTemplateId, credentialId))
+				d.Set("credential_id", res.Credential)
 
 				return []*schema.ResourceData{d}, nil
 			},
