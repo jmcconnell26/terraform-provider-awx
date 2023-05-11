@@ -58,7 +58,7 @@ func resourceJobTemplateCredentialsCreate(ctx context.Context, d *schema.Resourc
 		return buildDiagNotFoundFail("job template", jobTemplateID, err)
 	}
 
-	result, err := awxService.AssociateCredentials(jobTemplateID, map[string]interface{}{
+	_, err = awxService.AssociateCredentials(jobTemplateID, map[string]interface{}{
 		"id": d.Get("credential_id").(int),
 	}, map[string]string{})
 
@@ -66,7 +66,7 @@ func resourceJobTemplateCredentialsCreate(ctx context.Context, d *schema.Resourc
 		return buildDiagnosticsMessage("Create: JobTemplate not AssociateCredentials", "Fail to add credentials with Id %v, for Template ID %v, got error: %s", d.Get("credential_id").(int), jobTemplateID, err.Error())
 	}
 
-	d.SetId(strconv.Itoa(result.ID))
+	d.SetId(strconv.Itoa(jobTemplateID))
 	return diags
 }
 
