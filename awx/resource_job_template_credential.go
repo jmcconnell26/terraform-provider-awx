@@ -17,8 +17,6 @@ package awx
 import (
 	"context"
 	"fmt"
-	"strconv"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	awx "github.com/mrcrilly/goawx/client"
@@ -58,15 +56,16 @@ func resourceJobTemplateCredentialsCreate(ctx context.Context, d *schema.Resourc
 		return buildDiagNotFoundFail("job template", jobTemplateID, err)
 	}
 
+	credentialID := d.Get("credential_id").(int)
 	_, err = awxService.AssociateCredentials(jobTemplateID, map[string]interface{}{
-		"id": d.Get("credential_id").(int),
+		"id": credentialID,
 	}, map[string]string{})
 
 	if err != nil {
 		return buildDiagnosticsMessage("Create: JobTemplate not AssociateCredentials", "Fail to add credentials with Id %v, for Template ID %v, got error: %s", d.Get("credential_id").(int), jobTemplateID, err.Error())
 	}
 
-	d.SetId(strconv.Itoa(jobTemplateID))
+	d.SetId(fmt.Sprintf("%d-%d", jobTemplateID, credentialID))
 	return diags
 }
 
@@ -80,13 +79,12 @@ func resourceJobTemplateCredentialsRead(ctx context.Context, d *schema.ResourceD
 		return diags
 	}
 
-	//test
 	res, err := awxService.GetJobTemplateByID(id, make(map[string]string))
 	if err != nil {
 		return buildDiagNotFoundFail("job template", id, err)
 	}
 
-	d.SetId(strconv.Itoa(res.ID))
+	d.SetId(fmt.Sprintf("%d-%d", res.ID, res.Credential))
 	d.Set("job_template_id", res.ID)
 	d.Set("credential_id", res.Credential)
 	return diags
