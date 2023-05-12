@@ -160,7 +160,13 @@ func generateMtlsConfig(clientCertPEM string, clientKeyPEM string, caCertPEM str
         return nil, err
     }
 
-    if cert.Leaf.NotAfter.Before(time.Now()) {
+    parsedCert, err := x509.ParseCertificate(clientCertPEMBlock)
+
+    if err != nil; {
+        return nil, err
+    }
+
+    if parsedCert.NotAfter.Before(time.Now()) {
         return nil, errors.New("the provided mTLS certificate has expired")
     }
 
