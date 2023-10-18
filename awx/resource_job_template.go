@@ -202,7 +202,7 @@ func resourceJobTemplate() *schema.Resource {
 				Optional: true,
 				Default:  "",
 			},
-			"job_slicing": &schema.Schema{
+			"job_slice_count": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  1,
@@ -261,7 +261,7 @@ func resourceJobTemplateCreate(ctx context.Context, d *schema.ResourceData, m in
 		"allow_simultaneous":       d.Get("allow_simultaneous").(bool),
 		"execution_environment":    d.Get("execution_environment").(string),
 		"custom_virtualenv":        AtoipOr(d.Get("custom_virtualenv").(string), nil),
-		"job_slicing":              d.Get("job_slicing").(int),
+		"job_slice_count":          d.Get("job_slice_count").(int),
 	}, map[string]string{})
 	if err != nil {
 		log.Printf("Fail to Create Template %v", err)
@@ -325,7 +325,7 @@ func resourceJobTemplateUpdate(ctx context.Context, d *schema.ResourceData, m in
 		"allow_simultaneous":       d.Get("allow_simultaneous").(bool),
 		"execution_environment":    d.Get("execution_environment").(string),
 		"custom_virtualenv":        AtoipOr(d.Get("custom_virtualenv").(string), nil),
-		"job_slicing":              d.Get("job_slicing").(int),
+		"job_slice_count":          d.Get("job_slice_count").(int),
 	}, map[string]string{})
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{
@@ -386,7 +386,7 @@ func setJobTemplateResourceData(d *schema.ResourceData, r *awx.JobTemplate) *sch
 	d.Set("start_at_task", r.StartAtTask)
 	d.Set("survey_enabled", r.SurveyEnabled)
 	d.Set("verbosity", r.Verbosity)
-	d.Set("job_slicing", r.JobSlicing)
+	d.Set("job_slice_count", r.JobSliceCount)
 	d.SetId(strconv.Itoa(r.ID))
 	return d
 }
