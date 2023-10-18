@@ -4,16 +4,13 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
-	"errors"
 	"fmt"
-	"net/http"
-	"os"
-	"path/filepath"
-	"time"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	awx "github.com/mrcrilly/goawx/client"
+	"net/http"
+	"os"
+	"path/filepath"
 )
 
 func Provider() *schema.Provider {
@@ -158,16 +155,6 @@ func generateMtlsConfig(clientCertPEM string, clientKeyPEM string, caCertPEM str
 	cert, err := tls.X509KeyPair(clientCertPEMBlock, clientKeyPEMBlock)
 	if err != nil {
 		return nil, err
-	}
-
-	parsedCert, err := x509.ParseCertificate(clientCertPEMBlock)
-
-	if err != nil {
-		return nil, err
-	}
-
-	if parsedCert.NotAfter.Before(time.Now()) {
-		return nil, errors.New("the provided mTLS certificate has expired")
 	}
 
 	caCertPool, _ := x509.SystemCertPool()

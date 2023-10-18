@@ -322,6 +322,8 @@ github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a h1:zPPuIq2jAWWPTrGt7
 github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a/go.mod h1:yL958EeXv8Ylng6IfnvG4oflryUi3vgA3xPs9hmII1s=
 github.com/jmcconnell26/goawx v0.0.6 h1:Sehir+WojBQ1L8NoEKRTftGVChnVBM3VEbdOUZyJrGk=
 github.com/jmcconnell26/goawx v0.0.6/go.mod h1:VMMfhupkvd9+z6NmtyBRlGv2E8xG6w/zqgICdIPntaQ=
+github.com/jmcconnell26/goawx v0.0.7 h1:Q7Smjd7YMwsBjYl3IRxh4UkYoRbobsGeiU4Slh4i5lE=
+github.com/jmcconnell26/goawx v0.0.7/go.mod h1:VMMfhupkvd9+z6NmtyBRlGv2E8xG6w/zqgICdIPntaQ=
 github.com/jmespath/go-jmespath v0.0.0-20160202185014-0b12d6b521d8/go.mod h1:Nht3zPeWKUH0NzdCt2Blrr5ys8VGpn0CEB0cQHVjt7k=
 github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af/go.mod h1:Nht3zPeWKUH0NzdCt2Blrr5ys8VGpn0CEB0cQHVjt7k=
 github.com/joefitzgerald/rainbow-reporter v0.1.0/go.mod h1:481CNgqmVHQZzdIbN52CupLJyoVwB10FQ/IQlF1pdL8=
