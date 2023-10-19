@@ -26,7 +26,6 @@ package awx
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"log"
 	"strconv"
 	"strings"
@@ -93,6 +92,13 @@ func resourceJobTemplate() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "",
+				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					if strings.TrimSpace(oldValue) == strings.TrimSpace(newValue) {
+						return true
+					}
+
+					return false
+				},
 			},
 			"job_tags": &schema.Schema{
 				Type:     schema.TypeString,
@@ -210,8 +216,6 @@ func resourceJobTemplate() *schema.Resource {
 				Default:  1,
 			},
 		},
-		CustomizeDiff: customdiff.All(
-			ignoreTrailingWhitespace("extra_vars")),
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -225,17 +229,6 @@ func resourceJobTemplate() *schema.Resource {
 		//	Delete: schema.DefaultTimeout(1 * time.Minute),
 		//},
 	}
-}
-
-func ignoreTrailingWhitespace(key string) func(context.Context, *schema.ResourceDiff, interface{}) error {
-	return customdiff.IfValueChange(
-		key,
-		func(_ context.Context, oldValue, newValue, _ interface{}) bool {
-			return strings.TrimSpace(oldValue.(string)) == strings.TrimSpace(newValue.(string))
-		},
-		func(_ context.Context, d *schema.ResourceDiff, _ interface{}) error {
-			return d.Clear(key)
-		})
 }
 
 func resourceJobTemplateCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
