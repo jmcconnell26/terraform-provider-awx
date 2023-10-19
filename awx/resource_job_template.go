@@ -26,8 +26,10 @@ package awx
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"log"
 	"strconv"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -208,6 +210,8 @@ func resourceJobTemplate() *schema.Resource {
 				Default:  1,
 			},
 		},
+		CustomizeDiff: customdiff.All(
+			planSyncIfChange("extra_vars")),
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -221,6 +225,17 @@ func resourceJobTemplate() *schema.Resource {
 		//	Delete: schema.DefaultTimeout(1 * time.Minute),
 		//},
 	}
+}
+
+func planSyncIfChange(key string) func(context.Context, *schema.ResourceDiff, interface{}) error {
+	return customdiff.IfValueChange(
+		key,
+		func(_ context.Context, oldValue, newValue, _ interface{}) bool {
+			return strings.TrimSpace(oldValue.(string)) != strings.TrimSpace(newValue.(string))
+		},
+		func(_ context.Context, d *schema.ResourceDiff, _ interface{}) error {
+			return nil
+		})
 }
 
 func resourceJobTemplateCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
