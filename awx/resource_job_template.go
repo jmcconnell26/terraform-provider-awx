@@ -231,7 +231,7 @@ func ignoreTrailingWhitespace(key string) func(context.Context, *schema.Resource
 	return customdiff.IfValueChange(
 		key,
 		func(_ context.Context, oldValue, newValue, _ interface{}) bool {
-			return strings.TrimSpace(oldValue.(string)) == strings.TrimSpace(newValue.(string))
+			return strings.TrimSpace(oldValue.(string)) != strings.TrimSpace(newValue.(string))
 		},
 		func(_ context.Context, d *schema.ResourceDiff, _ interface{}) error {
 			return d.SetNew(key, d.Get(key))
