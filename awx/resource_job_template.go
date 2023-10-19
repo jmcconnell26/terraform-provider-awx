@@ -211,7 +211,7 @@ func resourceJobTemplate() *schema.Resource {
 			},
 		},
 		CustomizeDiff: customdiff.All(
-			planSyncIfChange("extra_vars")),
+			ignoreTrailingWhitespace("extra_vars")),
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -227,14 +227,14 @@ func resourceJobTemplate() *schema.Resource {
 	}
 }
 
-func planSyncIfChange(key string) func(context.Context, *schema.ResourceDiff, interface{}) error {
+func ignoreTrailingWhitespace(key string) func(context.Context, *schema.ResourceDiff, interface{}) error {
 	return customdiff.IfValueChange(
 		key,
 		func(_ context.Context, oldValue, newValue, _ interface{}) bool {
-			return strings.TrimSpace(oldValue.(string)) != strings.TrimSpace(newValue.(string))
+			return strings.TrimSpace(oldValue.(string)) == strings.TrimSpace(newValue.(string))
 		},
 		func(_ context.Context, d *schema.ResourceDiff, _ interface{}) error {
-			return nil
+			return d.SetNew(key, d.Get(key))
 		})
 }
 
